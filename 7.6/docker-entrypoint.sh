@@ -21,7 +21,7 @@ echo "[Entrypoint] MySQL Docker Image 7.6.14-1.1.16-cluster"
 # We use mysqld --verbose --help instead of my_print_defaults because the
 # latter only show values present in config files, and not server defaults
 _get_config() {
-	local conf="$1"; shift
+	local conf="$MODE"; shift
 	"$@" --verbose --help 2>/dev/null | grep "^$conf" | awk '$1 == "'"$conf"'" { print $2; exit }'
 }
 
@@ -32,7 +32,7 @@ if [ "${1:0:1}" = '-' ]; then
 	set -- mysqld "$@"
 fi
 
-if [ "$1" = 'mysqld' ]; then
+if [ "$MODE" = 'mysqld' ]; then
 	# Test that the server can start. We redirect stdout to /dev/null so
 	# only the error messages are left.
 	result=0
@@ -192,22 +192,22 @@ EOF
 	chown -R mysql:mysql "$DATADIR"
 	echo "[Entrypoint] Starting MySQL 7.6.14-1.1.16-cluster"
 
-elif [ "$1" == "ndb_mgmd" ]; then
+elif [ "$MODE" == "ndb_mgmd" ]; then
 	echo "[Entrypoint] Starting ndb_mgmd"
 	set -- "$@" -f /etc/mysql-cluster.cnf --nodaemon
 
-elif [ "$1" == "ndbd" ]; then
+elif [ "$MODE" == "ndbd" ]; then
 	echo "[Entrypoint] Starting ndbd"
 	set -- "$@" --nodaemon
 
-elif [ "$1" == "ndbmtd" ]; then
+elif [ "$MODE" == "ndbmtd" ]; then
 	echo "[Entrypoint] Starting ndbmtd"
 	set -- "$@" --nodaemon
 
-elif [ "$1" == "ndb_mgm" ]; then
+elif [ "$MODE" == "ndb_mgm" ]; then
 	echo "[Entrypoint] Starting ndb_mgm"
 
-elif [ "$1" == "ndb_waiter" ]; then
+elif [ "$MODE" == "ndb_waiter" ]; then
 	if [ "%%NDBWAITER%%" == "yes" ]; then
 		echo "[Entrypoint] Starting ndb_waiter"
 		set -- "$@" --nodaemon
